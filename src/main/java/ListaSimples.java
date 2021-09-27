@@ -22,13 +22,13 @@ public class ListaSimples<T> {
             adicionaFim(elemento);
         } else {
             Celula nova = new Celula(elemento);
-            Celula anterior = (Celula) recupera(posicao-1);
+            Celula anterior = (Celula) recuperaCelula(posicao-1);
             Celula proxima = anterior.getProximo();
 
             anterior.setProximo(nova);
             nova.setProximo(proxima);
+            this.tamanho++;
         }
-        this.tamanho++;
     }
 
     public void adicionaInicio(T elemento) {
@@ -50,8 +50,8 @@ public class ListaSimples<T> {
             Celula nova = new Celula(elemento);
             fim.setProximo(nova);
             fim = nova;
+            this.tamanho++;
         }
-        this.tamanho++;
     }
 
     public boolean existeDado(T elemento){
@@ -61,8 +61,8 @@ public class ListaSimples<T> {
             Iterador it = new Iterador(this.inicio);
             int i = 0;
             while (it.hasNext()) {
-                Celula celula = (Celula) it.getAtual().getElemento();
-                if (celula != elemento) {
+                Celula celula = it.getAtual();
+                if (celula.getElemento() != elemento) {
                     it.next();
                     i++;
                 } else {
@@ -73,7 +73,7 @@ public class ListaSimples<T> {
         }
     }
 
-    public T recupera(int posicao) {
+    public T recuperaElemento(int posicao) {
 
         if (this.tamanho == 0) {
             throw new ArrayIndexOutOfBoundsException("Não existe dados na lista");
@@ -92,7 +92,7 @@ public class ListaSimples<T> {
                 }
             }
 
-            return (T) it.getAtual();
+            return (T) it.getAtual().getElemento();
         }
     }
 
@@ -102,11 +102,16 @@ public class ListaSimples<T> {
         } else if (!posicaoOcupada(posicao)) {
             throw new ArrayIndexOutOfBoundsException("A posição " + posicao + " é inválida!");
         } else {
-            Celula anterior = (Celula) recupera(posicao - 1);
-            Celula atual = anterior.getProximo();
-            Celula proxima = atual.getProximo();
-            anterior.setProximo(proxima);
-            tamanho--;
+            if (posicao == 0) {
+                removeInicio();
+            } else {
+
+                Celula anterior = (Celula) recuperaCelula(posicao - 1);
+                Celula atual = anterior.getProximo();
+                Celula proxima = atual.getProximo();
+                anterior.setProximo(proxima);
+                tamanho--;
+            }
         }
     }
 
@@ -135,20 +140,49 @@ public class ListaSimples<T> {
         return this.tamanho;
     }
 
+    public void limpa(){
+        Iterador it = new Iterador(this.inicio);
+        this.inicio = this.fim = null;
+        while (it.hasNext()) {
+            Celula celula = it.getAtual();
+            Celula proxima = it.getAtual().getProximo();
+            if (proxima != null) {
+                it.next();
+                celula.setElemento(null);
+                celula.setProximo(null);
+                this.tamanho--;
+            } else {
+                celula.setElemento(null);
+                this.tamanho--;
+                break;
+            }
+        }
+    }
+
     private boolean posicaoOcupada(int posicao){
         return posicao >= 0 && posicao < this.tamanho;
     }
 
-    public void limpa(){
-        Iterador it = new Iterador(this.inicio);
-        int i = 0;
-        while (it.hasNext()) {
-            if (it.next() != null) {
-                it.getAtual().setElemento(null);
-                i++;
-            } else {
-                break;
+    private T recuperaCelula(int posicao) {
+
+        if (this.tamanho == 0) {
+            throw new ArrayIndexOutOfBoundsException("Não existe dados na lista");
+        } else if (!posicaoOcupada(posicao)) {
+            throw new ArrayIndexOutOfBoundsException("A posição " + posicao + " é inválida!");
+        } else {
+
+            Iterador it = new Iterador(this.inicio);
+            int i = 0;
+            while (it.hasNext()) {
+                if (i != posicao) {
+                    it.next();
+                    i++;
+                } else {
+                    break;
+                }
             }
+
+            return (T) it.getAtual();
         }
     }
 }

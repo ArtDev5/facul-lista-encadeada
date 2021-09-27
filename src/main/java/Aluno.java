@@ -27,4 +27,12 @@ public class Aluno {
     public int getIdade(){
         return this.idade;
     }
+
+    @Override
+    public String toString() {
+        return "Aluno{" +
+                "nome='" + nome + '\'' +
+                ", idade=" + idade +
+                '}';
+    }
 }
